@@ -15,13 +15,13 @@ load_dotenv()
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 PORT = int(os.getenv('PORT', 5050))
 TEMPERATURE = float(os.getenv('TEMPERATURE', 0.8))
-SYSTEM_MESSAGE = (
-    "You are a helpful and bubbly AI assistant who loves to chat about "
-    "anything the user is interested in and is prepared to offer them facts. "
-    "You have a penchant for dad jokes, owl jokes, and rickrolling – subtly. "
-    "Always stay positive, but work in a joke when appropriate."
-)
-VOICE = 'alloy'
+
+# Open the file in read mode
+with open("system_prompt.txt", "r") as file:
+    # Read the entire file into a string
+    SYSTEM_MESSAGE = file.read()
+
+VOICE = 'cedar'
 LOG_EVENT_TYPES = [
     'error', 'response.content.done', 'rate_limits.updated',
     'response.done', 'input_audio_buffer.committed',
@@ -45,14 +45,14 @@ async def handle_incoming_call(request: Request):
     response = VoiceResponse()
     # <Say> punctuation to improve text-to-speech flow
     response.say(
-        "Please wait while we connect your call to the A. I. voice assistant, powered by Twilio and the Open A I Realtime API",
+        "Please wait while we connect your call to the Manulife A. I. assistant, powered by Manulife's Innovation Pillar",
         voice="Google.en-US-Chirp3-HD-Aoede"
     )
     response.pause(length=1)
-    response.say(   
-        "O.K. you can start talking!",
-        voice="Google.en-US-Chirp3-HD-Aoede"
-    )
+    # response.say(   
+    #     "O.K. you can start talking!",
+    #     voice="Google.en-US-Chirp3-HD-Aoede"
+    # )
     host = request.url.hostname
     connect = Connect()
     connect.stream(url=f'wss://{host}/media-stream')
@@ -197,7 +197,7 @@ async def send_initial_conversation_item(openai_ws):
             "content": [
                 {
                     "type": "input_text",
-                    "text": "Greet the user with 'Hello there! I am an AI voice assistant powered by Twilio and the OpenAI Realtime API. You can ask me for facts, jokes, or anything you can imagine. How can I help you?'"
+                    "text": "Greet the user with 'Hi there! I am your Manulife AI assistant, Cedar. You can ask me about your policies, claims, payments, or any question. How can I help you?'"
                 }
             ]
         }
@@ -231,7 +231,7 @@ async def initialize_session(openai_ws):
     await openai_ws.send(json.dumps(session_update))
 
     # Uncomment the next line to have the AI speak first
-    # await send_initial_conversation_item(openai_ws)
+    await send_initial_conversation_item(openai_ws)
 
 if __name__ == "__main__":
     import uvicorn
