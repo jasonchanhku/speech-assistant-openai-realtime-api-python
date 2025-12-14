@@ -13,6 +13,9 @@ load_dotenv()
 
 # Configuration
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+AZURE_OPENAI_API_KEY = os.getenv('AZURE_OPENAI_API_KEY')
+AZURE_OPENAI_ENDPOINT = os.getenv('AZURE_OPENAI_ENDPOINT')
+
 PORT = int(os.getenv('PORT', 5050))
 TEMPERATURE = float(os.getenv('TEMPERATURE', 0.8))
 
@@ -21,7 +24,7 @@ with open("system_prompt.txt", "r") as file:
     # Read the entire file into a string
     SYSTEM_MESSAGE = file.read()
 
-VOICE = 'cedar'
+VOICE = os.getenv('VOICE', 'marin')
 LOG_EVENT_TYPES = [
     'error', 'response.content.done', 'rate_limits.updated',
     'response.done', 'input_audio_buffer.committed',
@@ -32,7 +35,7 @@ SHOW_TIMING_MATH = False
 
 app = FastAPI()
 
-if not OPENAI_API_KEY:
+if not AZURE_OPENAI_API_KEY:
     raise ValueError('Missing the OpenAI API key. Please set it in the .env file.')
 
 @app.get("/", response_class=JSONResponse)
@@ -64,12 +67,10 @@ async def handle_media_stream(websocket: WebSocket):
     """Handle WebSocket connections between Twilio and OpenAI."""
     print("Client connected")
     await websocket.accept()
-
+    
     async with websockets.connect(
-        f"wss://api.openai.com/v1/realtime?model=gpt-realtime&temperature={TEMPERATURE}",
-        additional_headers={
-            "Authorization": f"Bearer {OPENAI_API_KEY}"
-        }
+        #f"wss://api.openai.com/v1/realtime?model=gpt-realtime&temperature={TEMPERATURE}",
+        f"{AZURE_OPENAI_ENDPOINT}?model=gpt-realtime&api-key={AZURE_OPENAI_API_KEY}&temperature={TEMPERATURE}",
     ) as openai_ws:
         await initialize_session(openai_ws)
 
@@ -197,7 +198,7 @@ async def send_initial_conversation_item(openai_ws):
             "content": [
                 {
                     "type": "input_text",
-                    "text": "Greet the user with 'Hi there! I am your Manulife AI assistant, Cedar. You can ask me about your policies, claims, payments, or any question. How can I help you?'"
+                    "text": "Greet the user with 'Hi there! I am your Manulife AI assistant, Samantha. You can ask me about your policies, claims, payments, or any question. How can I help you?'"
                 }
             ]
         }
