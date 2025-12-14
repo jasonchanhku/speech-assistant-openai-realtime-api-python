@@ -15,7 +15,7 @@ load_dotenv()
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 AZURE_OPENAI_API_KEY = os.getenv('AZURE_OPENAI_API_KEY')
 AZURE_OPENAI_ENDPOINT = os.getenv('AZURE_OPENAI_ENDPOINT')
-
+LANGUAGE = os.getenv('LANGUAGE', 'english')
 PORT = int(os.getenv('PORT', 5050))
 TEMPERATURE = float(os.getenv('TEMPERATURE', 0.8))
 
@@ -190,6 +190,12 @@ async def handle_media_stream(websocket: WebSocket):
 
 async def send_initial_conversation_item(openai_ws):
     """Send initial conversation item if AI talks first."""
+
+    greeting_content = {
+        "english": "Greet the user with 'Hi there! I am your Manulife AI assistant, Samantha. Can you please provide me the OTP code sent to your registered device?'",
+        "cantonese": "用「你好！我係你嘅 Manulife AI 助理，Samantha。你可唔可以提供我傳送去你註冊咗嘅裝置嘅 OTP 代碼？」"
+    }
+
     initial_conversation_item = {
         "type": "conversation.item.create",
         "item": {
@@ -198,7 +204,7 @@ async def send_initial_conversation_item(openai_ws):
             "content": [
                 {
                     "type": "input_text",
-                    "text": "Greet the user with 'Hi there! I am your Manulife AI assistant, Samantha. You can ask me about your policies, claims, payments, or any question. How can I help you?'"
+                    "text": greeting_content[LANGUAGE]
                 }
             ]
         }
