@@ -18,9 +18,8 @@ AZURE_OPENAI_ENDPOINT = os.getenv('AZURE_OPENAI_ENDPOINT')
 LANGUAGE = os.getenv('LANGUAGE', 'english')
 PORT = int(os.getenv('PORT', 5050))
 TEMPERATURE = float(os.getenv('TEMPERATURE', 0.8))
-
 # Open the file in read mode
-with open("system_prompt.txt", "r") as file:
+with open(f"system_prompt_{LANGUAGE}.txt", "r") as file:
     # Read the entire file into a string
     SYSTEM_MESSAGE = file.read()
 
@@ -47,9 +46,15 @@ async def handle_incoming_call(request: Request):
     """Handle incoming call and return TwiML response to connect to Media Stream."""
     response = VoiceResponse()
     # <Say> punctuation to improve text-to-speech flow
+    entry_message = {
+        "english": "Please wait while we connect your call to the Manulife A. I. assistant, powered by Manulife's Innovation Pillar",
+        "cantonese":"請等我哋將你嘅電話連接去宏利智幫手"
+    }
+
     response.say(
-        "Please wait while we connect your call to the Manulife A. I. assistant, powered by Manulife's Innovation Pillar",
-        voice="Google.en-US-Chirp3-HD-Aoede"
+        entry_message[LANGUAGE],
+        #voice="Google.en-US-Chirp3-HD-Aoede"
+        language="zh-HK"
     )
     response.pause(length=1)
     # response.say(   
@@ -193,7 +198,7 @@ async def send_initial_conversation_item(openai_ws):
 
     greeting_content = {
         "english": "Greet the user with 'Hi there! I am your Manulife AI assistant, Samantha. Can you please provide me the OTP code sent to your registered device?'",
-        "cantonese": "用「你好！我係你嘅 Manulife AI 助理，Samantha。你可唔可以提供我傳送去你註冊咗嘅裝置嘅 OTP 代碼？」"
+        "cantonese": "用「你好！我係你嘅宏利智幫手，Samantha。你可唔可以提供我傳送去你註冊咗嘅裝置嘅 OTP 代碼？」"
     }
 
     initial_conversation_item = {
